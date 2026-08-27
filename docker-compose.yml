@@ -1,0 +1,51 @@
+services:
+
+  backend:
+    build: .
+    container_name: skills-backend
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgresql://postgres:123456@postgres:5432/course_recommendation_db
+      SECRET_KEY: change-this-secret-key
+      JWT_SECRET_KEY: change-this-jwt-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      vault:
+        condition: service_started
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    container_name: skills-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: course_recommendation_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d course_recommendation_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  vault:
+    image: hashicorp/vault:1.17
+    container_name: skills-vault
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: dev-root-token
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    command: server -dev
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
