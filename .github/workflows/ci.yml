@@ -1,4 +1,3 @@
-```yaml
 name: Project3 CI/CD
 
 on:
@@ -8,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-test:
+  build-and-deploy:
     runs-on: self-hosted
 
     steps:
@@ -33,18 +32,19 @@ jobs:
         run: |
           ./vault-start.sh
 
-      - name: Build application
-        run: docker compose build
+      - name: Build Docker images
+        run: |
+          docker compose build
 
-      - name: Check containers
-        run: docker compose ps
+      - name: Deploy application
+        run: |
+          docker compose up -d
 
-      - name: Check application
+      - name: Check deployment
+        run: |
+          docker compose ps
+
+      - name: Health check
         run: |
           sleep 10
-          curl -f http://127.0.0.1:8000 || exit 1
-
-      - name: Stop application
-        if: always()
-        run: docker compose down
-```
+          curl -f http://127.0.0.1:8000
