@@ -33,29 +33,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check Vault
-        env:
-          VAULT_ADDR: http://127.0.0.1:8200
-          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
-        run: |
-          vault status
-          vault token lookup
-
       - name: Load secrets from Vault
         env:
           VAULT_ADDR: http://127.0.0.1:8200
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
-        run: |
-          ./vault-start.sh
+        run: ./vault-start.sh
 
       - name: Deploy application
         run: docker compose up -d
 
-      - name: Check deployment
+
+  test:
+    name: Test
+    needs: deploy
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check containers
         run: docker compose ps
 
       - name: Health check
         run: |
           sleep 10
           curl -f http://127.0.0.1:8000
-```
+
