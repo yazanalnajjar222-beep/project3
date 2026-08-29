@@ -1,55 +1,43 @@
 name: Project3 CI/CD
-
 on:
   push:
     branches:
       - main
   workflow_dispatch:
-
 jobs:
-
   build:
     name: Build
     runs-on: self-hosted
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Check Docker
         run: docker --version
-
       - name: Build application
         run: docker compose build
-
-
   deploy:
     name: Deploy
     runs-on: self-hosted
     needs: build
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Check Vault
         run: |
           export VAULT_ADDR='http://127.0.0.1:8200'
           vault status
-
       - name: Load secrets from Vault
+        env:
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
         run: |
           chmod +x vault-start.sh
           ./vault-start.sh
-
       - name: Deploy application
         run: |
           docker compose up -d --no-build
-
       - name: Check deployment
         run: |
           docker compose ps
-
       - name: Health check
         run: |
           sleep 10
