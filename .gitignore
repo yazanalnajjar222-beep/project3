@@ -216,4 +216,17 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-docker-compose.yml
+
+# Local secrets
+key
+.env
+
+# Vault local storage
+vault/
+
+# GitHub Actions self-hosted runner
+actions-runner/
+
+# Local backup/copy
+push/
+vault-start.sh

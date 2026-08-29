@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    container_name: project3-app
+    ports:
+      - "8000:5000"
+    environment:
+      DATABASE_URL: postgresql://postgres:123456@db:5432/course_recommendation_db
+      SECRET_KEY: super-secret-key-course-platform-2026-secure
+      JWT_SECRET_KEY: jwt-super-secret-key-32-chars-long-secure-token
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    container_name: project3-db
+    environment:
+      POSTGRES_DB: course_recommendation_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
