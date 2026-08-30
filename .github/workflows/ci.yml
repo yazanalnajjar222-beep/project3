@@ -20,6 +20,11 @@ jobs:
           docker --version
           docker compose version
 
+      - name: Show files
+        run: |
+          pwd
+          ls -la
+
       - name: Build application
         run: |
           docker compose build --no-cache
@@ -37,21 +42,25 @@ jobs:
         run: |
           docker compose down || true
 
+      - name: Remove old image
+        run: |
+          docker image prune -f
+
       - name: Deploy application
         run: |
-          docker compose up -d --build
+          docker compose up -d --build --force-recreate
 
       - name: Check deployment
         run: |
           docker compose ps
-          docker ps
+          docker ps -a
 
-      - name: Show logs if failed
-        if: failure()
+      - name: Show logs
         run: |
-          docker compose logs
+          docker compose logs --tail=100
 
       - name: Health check
         run: |
           sleep 15
           curl -f http://127.0.0.1:8000 || exit 1
+``
