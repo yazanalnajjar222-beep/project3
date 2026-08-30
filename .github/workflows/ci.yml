@@ -49,26 +49,7 @@ jobs:
           ref: main
           clean: true
 
-      - name: Check files
-        run: |
-          pwd
-          ls -la
-          test -f Dockerfile
-          test -f docker-compose.yml
-          test -f vault-start.sh
-
-      - name: Check Vault
-        run: |
-          export VAULT_ADDR='http://127.0.0.1:8200'
-          vault status
-
-      - name: Load secrets from Vault
-        env:
-          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
-          VAULT_ADDR: http://127.0.0.1:8200
-        run: |
-          chmod +x vault-start.sh
-          ./vault-start.sh
+      
 
       - name: Deploy application
         run: |
